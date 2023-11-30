@@ -49,6 +49,9 @@ find_path(IdaSdk_DIR NAMES include/pro.h
         PATHS ${CMAKE_CURRENT_LIST_DIR}/../third_party/idasdk
         DOC "Location of the IDA SDK"
         NO_DEFAULT_PATH)
+
+set(IdaSdk_DIR "/Users/sunsama/Documents/workspace/research/ios/quokka-macos/idasdk_pro83/")
+
 set(IdaSdk_INCLUDE_DIRS ${IdaSdk_DIR}/include)
 set(IdaSdk_MODULE_DIRS ${IdaSdk_DIR}/module)
 
@@ -63,6 +66,7 @@ find_path(IDA_ROOT_DIR
         PATHS /opt/ida/
         HINTS ${Ida_BIN_DIR} ENV IDA_BIN
         DOC "Location of IDA root dir")
+set(IDA_ROOT_DIR "/Applications/IDA Pro 8.3/idabin")
 
 if (NOT IDA_ROOT_DIR)
     message(STATUS "Did not find IDA binary. Try to set Ida_BIN_DIR or env variable IDA_BIN")
@@ -71,10 +75,11 @@ else ()
 endif ()
 
 if (UNIX)
-    set(IdaLib ${IdaSdk_DIR}/lib/x64_linux_gcc_64/libida64.so)
     if (APPLE)
+        set(IdaLib ${IdaSdk_DIR}/lib/x64_mac_clang_64_pro/libida64.dylib)
         set(IdaSdk_PLATFORM __MAC__)
     else ()
+        set(IdaLib ${IdaSdk_DIR}/lib/x64_linux_gcc_64/libida64.so)
         set(IdaSdk_PLATFORM __LINUX__)
     endif ()
 elseif (WIN32)
@@ -131,6 +136,7 @@ function(_ida_plugin name link_script)  # ARGN contains sources
                     -Wl,-flat_namespace
                     -Wl,-undefined,warning
                     -Wl,-exported_symbol,_PLUGIN)
+            target_link_libraries(${name} ${IdaLib})
         else ()
             # Always use the linker script needed for IDA.
             target_link_libraries(${name}
